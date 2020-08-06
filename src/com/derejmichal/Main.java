@@ -16,7 +16,7 @@ public class Main {
             apiServerPath.append("https://api.spotify.com");
         }
 
-        for (int i = 0; i < 2; i += 2) {
+        for (int i = 0; i < args.length; i += 2) {
             if ("-access".equals(args[i])) {
                 spotifyServer.setLength(0);
                 spotifyServer.append(args[i + 1]);
