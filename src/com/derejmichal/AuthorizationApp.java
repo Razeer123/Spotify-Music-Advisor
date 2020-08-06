@@ -1,5 +1,6 @@
 package com.derejmichal;
 
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -9,13 +10,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuthorizationApp {
 
     private boolean authorized = false;
-    private StringBuilder query = new StringBuilder();
-    private StringBuilder authCode = new StringBuilder();
-    private StringBuilder spotifyServer = new StringBuilder();
+    private final StringBuilder query = new StringBuilder();
+    private final StringBuilder authCode = new StringBuilder();
+    private final StringBuilder spotifyServer = new StringBuilder();
+    private final StringBuilder accessToken = new StringBuilder();
 
     // Enter your ClientID and ClientSecret information here
 
@@ -113,6 +117,148 @@ public class AuthorizationApp {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         System.out.println(response.body());
 
+        // Parsing received JSON and saving access_token to String
+
+        String json = response.body();
+        JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+        accessToken.append(jo.get("access_token").getAsString());
+        System.out.println(accessToken);
+
     }
 
+    public String spotifyRequestAuth(String apiPath) throws IOException, InterruptedException {
+
+        // Creating authorization header
+
+        HttpClient client = HttpClient.newBuilder().build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .header("Authorization", "Bearer " + accessToken)
+                .uri(URI.create(apiPath))
+                .GET()
+                .build();
+
+        // Getting response
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response.body();
+
+    }
+
+    public String spotifyRequestCategory(String apiPath, String categoryName) throws IOException, InterruptedException {
+
+        // Parsing received JSON
+
+        List<JsonObject> objects = new ArrayList<>();
+        String json = spotifyRequestAuth(apiPath);
+        JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject categoriesObject = jo.get("categories").getAsJsonObject();
+        JsonArray categoriesArray = categoriesObject.getAsJsonArray("items");
+
+        for (int i = 0; i < categoriesArray.size(); i++) {
+            objects.add(categoriesArray.get(i).getAsJsonObject());
+        }
+
+        // Printing data to user
+
+        StringBuilder categoryID = new StringBuilder();
+
+        for (JsonObject object : objects) {
+            if (categoryName == null) {
+                System.out.println(object.get("name").getAsString());
+            } else {
+                if (categoryName.equals(object.get("name").getAsString())) {
+                    categoryID.append(object.get("id").getAsString());
+                    break;
+                }
+            }
+        }
+
+        return categoryID.toString();
+
+    }
+
+    public void spotifyRequestNew(String apiPath) throws IOException, InterruptedException {
+
+        // Parsing received JSON
+
+        List<JsonObject> objects = new ArrayList<>();
+        String json = spotifyRequestAuth(apiPath);
+        JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject albums = jo.get("albums").getAsJsonObject();
+        JsonArray newReleasesArray = albums.getAsJsonArray("items");
+
+        for (int i = 0; i < newReleasesArray.size(); i++) {
+            objects.add(newReleasesArray.get(i).getAsJsonObject());
+        }
+
+        // Printing data to user
+
+        for (JsonObject object : objects) {
+
+            // Getting URL data
+
+            JsonObject externalUrl = object.get("external_urls").getAsJsonObject();
+
+            // Getting artists data
+
+            JsonArray artists = object.getAsJsonArray("artists");
+            StringBuilder artistsString = new StringBuilder();
+            List<JsonObject> artistsNames = new ArrayList<>();
+            for (int i = 0; i < artists.size(); i++) {
+                artistsNames.add(artists.get(i).getAsJsonObject());
+            }
+            artistsString.append("[");
+            for (JsonObject artist : artistsNames) {
+                artistsString.append(artist.get("name")).append(", ");
+            }
+            artistsString.replace(artistsString.length() - 2, artistsString.length(), "");
+            artistsString.append("]");
+
+
+            System.out.println();
+            System.out.println(object.get("name").getAsString());
+            System.out.println(artistsString.toString().replace("\"", ""));
+            System.out.println(externalUrl.get("spotify").toString().replace("\"", ""));
+
+        }
+    }
+
+    public void spotifyRequestPlaylist(String apiPath) throws IOException, InterruptedException {
+
+        // Parsing received JSON
+
+        List<JsonObject> objects = new ArrayList<>();
+        String json = spotifyRequestAuth(apiPath);
+        JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+
+        if (jo.toString().contains("error")) {
+
+            JsonObject error = jo.get("error").getAsJsonObject();
+            System.out.println();
+            System.out.println(error.get("message").getAsString());
+
+        } else {
+
+            JsonObject playlists = jo.get("playlists").getAsJsonObject();
+            JsonArray playlistArray = playlists.getAsJsonArray("items");
+
+            for (int i = 0; i < playlistArray.size(); i++) {
+                objects.add(playlistArray.get(i).getAsJsonObject());
+            }
+
+            // Printing data to user
+
+            for (JsonObject object : objects) {
+
+                // Getting URL data
+
+                JsonObject externalUrl = object.get("external_urls").getAsJsonObject();
+
+                System.out.println();
+                System.out.println(object.get("name").getAsString());
+                System.out.println(externalUrl.get("spotify").getAsString());
+
+            }
+        }
+    }
 }
