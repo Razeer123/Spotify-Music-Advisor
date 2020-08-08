@@ -6,6 +6,7 @@ This is Java app that I'm currently working on as a JetBrains Academy Assignment
 
 - Authorize and connect to Spotify servers
 - Download and display information about many categories, playlists and recently added songs
+- Results are presented in customisable lists that can be switched with commands (next, prev)
 
 # What's working ✅
 
@@ -25,5 +26,5 @@ This is Java app that I'm currently working on as a JetBrains Academy Assignment
 # To do 👨‍💻
 
 - SQL integration to safely store Client ID and Client Secret (to be added soon)
-- Making app polished and easy to use
+- Making app polished, clean and easy to use
 - Deployment
