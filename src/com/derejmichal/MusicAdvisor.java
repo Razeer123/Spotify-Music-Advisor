@@ -10,7 +10,9 @@ public class MusicAdvisor {
     private static final StringBuilder apiServerPath = new StringBuilder();
     private static final AuthorizationApp app = new AuthorizationApp();
     private static final MusicAdvisorView view = new MusicAdvisorView();
+    static SelectApp selectApp = new SelectApp(Main.fileName);
     private static int resultPage;
+    static StringBuilder userName = new StringBuilder();
 
     public static void setServer(StringBuilder server, StringBuilder apiPath, int resultPage) {
         spotifyServer.append(server);
@@ -24,6 +26,8 @@ public class MusicAdvisor {
         StringBuilder choice = new StringBuilder();
         boolean pageMenu;
 
+        // Preparing Music Advisor Viewer
+
         view.setResultPage(resultPage);
 
         while (!choice.toString().equals("exit")) {
@@ -35,7 +39,6 @@ public class MusicAdvisor {
             }
 
             providedChoice = null;
-
             StringBuilder category = new StringBuilder();
 
             if (choice.toString().contains("playlists")) {
@@ -44,6 +47,7 @@ public class MusicAdvisor {
             String categoryTest = "playlists" + " " + category.toString();
 
             // Cannot use switch statement because of non-static variable
+            // I will improve code below in the future update
 
             int currentPage;
             if (choice.toString().equals("featured")) {
@@ -196,7 +200,7 @@ public class MusicAdvisor {
                 app.setServer(spotifyServer);
                 System.out.println("use this link to request the access code: ");
                 System.out.println(spotifyServer.toString() + "/authorize?" +
-                        "client_id=" +
+                        "client_id=" + selectApp.findID(userName.toString()) +
                         "&redirect_uri=http://localhost:8080&response_type=code");
 
                 app.startServer();
@@ -210,6 +214,44 @@ public class MusicAdvisor {
 
                 System.out.println("---GOODBYE!---");
                 System.exit(0);
+
+            } else if (choice.toString().equals("register")) {
+
+                InsertApp insertApp = new InsertApp(Main.fileName);
+
+                System.out.print("Enter your name: ");
+                String name = scanner.nextLine();
+                System.out.print("Enter your Client ID: ");
+                String id = scanner.nextLine();
+                System.out.print("Enter your Client Secret: ");
+                String secret = scanner.nextLine();
+
+                insertApp.insert(name, id, secret);
+
+                System.out.println("User successfully registered. Login using 'login' command.");
+            } else if (choice.toString().equals("login")) {
+
+                System.out.print("Enter your name: ");
+                String name = scanner.nextLine();
+
+                if (selectApp.login(name)) {
+                    System.out.println("Successfully logged in!");
+                    userName.append(name);
+                } else {
+                    System.out.println("User not found.");
+                }
+
+            } else if (choice.toString().equals("help") || choice.toString().equals("h")) {
+
+                System.out.println("Available commands:");
+                System.out.println("register - creates account for user");
+                System.out.println("login - logs into account with given name");
+                System.out.println("auth - logs into Spotify Web API with given data");
+                System.out.println("featured - shows featured playlists from Spotify");
+                System.out.println("new - shows tracks recently added to Spotify");
+                System.out.println("categories - shows available categories on Spotify");
+                System.out.println("playlists + <category> - prints playlists from a given category");
+                System.out.println("exit - exits the app");
 
             } else {
 

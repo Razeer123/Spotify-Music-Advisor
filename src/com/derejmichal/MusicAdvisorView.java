@@ -26,6 +26,8 @@ public class MusicAdvisorView {
         this.link = link;
     }
 
+    // Calculating size of list with printed answers
+
     public int calculateSize() {
         if (resultPage == 0) {
             return 0;

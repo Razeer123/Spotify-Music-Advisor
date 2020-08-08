@@ -26,9 +26,6 @@ public class AuthorizationApp {
 
 // Enter your ClientID and ClientSecret information here
 
-    private String ClientID = "";
-    private String ClientSecret = "";
-
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
     }
@@ -104,12 +101,11 @@ public class AuthorizationApp {
         // Making requests
 
         System.out.println("making http request for access_token...");
-        System.out.println("response:");
 
         // It will be deployed at a later stage. Change the port if 8080 is occupied.
 
-        String linkData = "client_id=" + ClientID +
-                "&client_secret=" + ClientSecret +
+        String linkData = "client_id=" + MusicAdvisor.selectApp.findID(MusicAdvisor.userName.toString()) +
+                "&client_secret=" + MusicAdvisor.selectApp.findSecret(MusicAdvisor.userName.toString()) +
                 "&grant_type=authorization_code" +
                 "&code=" + authCode.toString() +
                 "&redirect_uri=http://localhost:8080";
@@ -127,14 +123,12 @@ public class AuthorizationApp {
         // Getting response
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
 
         // Parsing received JSON and saving access_token to String
 
         String json = response.body();
         JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
         accessToken.append(jo.get("access_token").getAsString());
-        System.out.println(accessToken);
 
     }
 
