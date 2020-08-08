@@ -27,4 +27,5 @@ This is Java app that I'm currently working on as a JetBrains Academy Assignment
 
 - SQL integration to safely store Client ID and Client Secret (to be added soon)
 - Making app polished, clean and easy to use
+- Creating GUI
 - Deployment
