@@ -20,8 +20,11 @@ public class AuthorizationApp {
     private final StringBuilder authCode = new StringBuilder();
     private final StringBuilder spotifyServer = new StringBuilder();
     private final StringBuilder accessToken = new StringBuilder();
+    private final List<String> name = new ArrayList<>();
+    private final List<String> artist = new ArrayList<>();
+    private final List<String> link = new ArrayList<>();
 
-    // Enter your ClientID and ClientSecret information here
+// Enter your ClientID and ClientSecret information here
 
     private String ClientID = "";
     private String ClientSecret = "";
@@ -30,16 +33,25 @@ public class AuthorizationApp {
         this.authorized = authorized;
     }
 
+    public List<String> getName() {
+        return name;
+    }
+
+    public List<String> getArtist() {
+        return artist;
+    }
+
+    public List<String> getLink() {
+        return link;
+    }
+
     public boolean isAuthorized() {
 
         if (!authorized) {
-
             System.out.println("Please, provide access for application.");
-
         }
 
         return authorized;
-
     }
 
     public void setServer(StringBuilder server) {
@@ -161,10 +173,11 @@ public class AuthorizationApp {
         // Printing data to user
 
         StringBuilder categoryID = new StringBuilder();
+        name.clear();
 
         for (JsonObject object : objects) {
             if (categoryName == null) {
-                System.out.println(object.get("name").getAsString());
+                name.add(object.get("name").getAsString());
             } else {
                 if (categoryName.equals(object.get("name").getAsString())) {
                     categoryID.append(object.get("id").getAsString());
@@ -214,11 +227,9 @@ public class AuthorizationApp {
             artistsString.replace(artistsString.length() - 2, artistsString.length(), "");
             artistsString.append("]");
 
-
-            System.out.println();
-            System.out.println(object.get("name").getAsString());
-            System.out.println(artistsString.toString().replace("\"", ""));
-            System.out.println(externalUrl.get("spotify").toString().replace("\"", ""));
+            name.add(object.get("name").getAsString());
+            artist.add(artistsString.toString().replace("\"", ""));
+            link.add(externalUrl.get("spotify").toString().replace("\"", ""));
 
         }
     }
@@ -254,9 +265,8 @@ public class AuthorizationApp {
 
                 JsonObject externalUrl = object.get("external_urls").getAsJsonObject();
 
-                System.out.println();
-                System.out.println(object.get("name").getAsString());
-                System.out.println(externalUrl.get("spotify").getAsString());
+                name.add(object.get("name").getAsString());
+                link.add(externalUrl.get("spotify").getAsString());
 
             }
         }

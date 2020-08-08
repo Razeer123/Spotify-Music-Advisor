@@ -6,6 +6,7 @@ public class Main {
 
     static StringBuilder spotifyServer = new StringBuilder();
     static StringBuilder apiServerPath = new StringBuilder();
+    static int resultPage;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -14,6 +15,7 @@ public class Main {
         if (args.length == 0) {
             spotifyServer.append("https://accounts.spotify.com");
             apiServerPath.append("https://api.spotify.com");
+            resultPage = 5;
         }
 
         for (int i = 0; i < args.length; i += 2) {
@@ -38,8 +40,17 @@ public class Main {
             }
         }
 
-        MusicAdvisor.setServer(spotifyServer, apiServerPath);
-        MusicAdvisor.menu();
+        for (int i = 4; i < args.length; i += 2) {
+            if ("-page".equals(args[i])) {
+                resultPage = Integer.parseInt(args[i + 1]);
+                break;
+            } else {
+                resultPage = 5;
+            }
+        }
+
+        MusicAdvisor.setServer(spotifyServer, apiServerPath, resultPage);
+        MusicAdvisor.menu(null);
 
     }
 }

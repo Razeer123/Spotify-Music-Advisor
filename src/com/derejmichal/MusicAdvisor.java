@@ -1,28 +1,43 @@
 package com.derejmichal;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class MusicAdvisor {
 
     private static final StringBuilder spotifyServer = new StringBuilder();
     private static final StringBuilder apiServerPath = new StringBuilder();
+    private static final AuthorizationApp app = new AuthorizationApp();
+    private static final MusicAdvisorView view = new MusicAdvisorView();
+    private static int resultPage;
 
-    public static void setServer(StringBuilder server, StringBuilder apiPath) {
+    public static void setServer(StringBuilder server, StringBuilder apiPath, int resultPage) {
         spotifyServer.append(server);
         apiServerPath.append(apiPath);
+        MusicAdvisor.resultPage = resultPage;
     }
 
-    public static void menu() throws IOException, InterruptedException {
+    public static void menu(String providedChoice) throws IOException, InterruptedException {
 
         Scanner scanner = new Scanner(System.in);
-        AuthorizationApp app = new AuthorizationApp();
         StringBuilder choice = new StringBuilder();
+        boolean pageMenu;
+
+        view.setResultPage(resultPage);
 
         while (!choice.toString().equals("exit")) {
 
-            choice.replace(0, choice.length(), scanner.nextLine());
+            if (providedChoice == null) {
+                choice.replace(0, choice.length(), scanner.nextLine());
+            } else {
+                choice.append(providedChoice);
+            }
+
+            providedChoice = null;
+
             StringBuilder category = new StringBuilder();
+
             if (choice.toString().contains("playlists")) {
                 category.append(choice.substring(10, choice.length()));
             }
@@ -30,6 +45,7 @@ public class MusicAdvisor {
 
             // Cannot use switch statement because of non-static variable
 
+            int currentPage;
             if (choice.toString().equals("featured")) {
 
                 if (app.isAuthorized()) {
@@ -37,6 +53,33 @@ public class MusicAdvisor {
                     System.out.println();
                     String url = apiServerPath.toString() + "/v1/browse/featured-playlists";
                     app.spotifyRequestPlaylist(url);
+                    view.setName(app.getName());
+                    view.setLink(app.getLink());
+                    currentPage = 1;
+                    view.display(currentPage, "featured");
+                    pageMenu = true;
+
+                    while (pageMenu) {
+                        String pageMenuChoice = scanner.nextLine();
+                        if (pageMenuChoice.equals("next")) {
+                            if (currentPage < view.calculateSize()) {
+                                currentPage++;
+                                view.display(currentPage, "featured");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else if (pageMenuChoice.equals("prev")) {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                view.display(currentPage, "featured");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else {
+                            pageMenu = false;
+                            menu(pageMenuChoice);
+                        }
+                    }
 
                 }
             } else if (choice.toString().equals("new")) {
@@ -46,16 +89,68 @@ public class MusicAdvisor {
                     System.out.println();
                     String url = apiServerPath.toString() + "/v1/browse/new-releases";
                     app.spotifyRequestNew(url);
+                    view.setName(app.getName());
+                    view.setAuthor(app.getArtist());
+                    view.setLink(app.getLink());
+                    currentPage = 1;
+                    view.display(currentPage, "new");
+                    pageMenu = true;
+
+                    while (pageMenu) {
+                        String pageMenuChoice = scanner.nextLine();
+                        if (pageMenuChoice.equals("next")) {
+                            if (currentPage < view.calculateSize()) {
+                                currentPage++;
+                                view.display(currentPage, "new");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else if (pageMenuChoice.equals("prev")) {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                view.display(currentPage, "new");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else {
+                            pageMenu = false;
+                            menu(pageMenuChoice);
+                        }
+                    }
 
                 }
             } else if (choice.toString().equals("categories")) {
 
                 if (app.isAuthorized()) {
 
-                    System.out.println();
                     String url = apiServerPath.toString() + "/v1/browse/categories";
                     app.spotifyRequestCategory(url, null);
+                    view.setName(app.getName());
+                    currentPage = 1;
+                    view.display(currentPage, "category");
+                    pageMenu = true;
 
+                    while (pageMenu) {
+                        String pageMenuChoice = scanner.nextLine();
+                        if (pageMenuChoice.equals("next")) {
+                            if (currentPage < view.calculateSize()) {
+                                currentPage++;
+                                view.display(currentPage, "category");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else if (pageMenuChoice.equals("prev")) {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                view.display(currentPage, "display");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else {
+                            pageMenu = false;
+                            menu(pageMenuChoice);
+                        }
+                    }
                 }
             } else if (choice.toString().equals(categoryTest)) {
 
@@ -65,6 +160,33 @@ public class MusicAdvisor {
                     String categoryID = app.spotifyRequestCategory(categoryUrl, category.toString());
                     String url = apiServerPath.toString() + "/v1/browse/categories/" + categoryID + "/playlists";
                     app.spotifyRequestPlaylist(url);
+                    view.setName(app.getName());
+                    view.setLink(app.getLink());
+                    currentPage = 1;
+                    view.display(currentPage, "playlist");
+                    pageMenu = true;
+
+                    while (pageMenu) {
+                        String pageMenuChoice = scanner.nextLine();
+                        if (pageMenuChoice.equals("next")) {
+                            if (currentPage < view.calculateSize()) {
+                                currentPage++;
+                                view.display(currentPage, "playlist");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else if (pageMenuChoice.equals("prev")) {
+                            if (currentPage > 1) {
+                                currentPage--;
+                                view.display(currentPage, "playlist");
+                            } else {
+                                System.out.println("No more pages!");
+                            }
+                        } else {
+                            pageMenu = false;
+                            menu(pageMenuChoice);
+                        }
+                    }
 
                 }
             } else if (choice.toString().equals("auth")) {
