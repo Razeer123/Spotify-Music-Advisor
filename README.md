@@ -1,6 +1,6 @@
 # Spotify Music Advisor - Work in progress!
 
-Creation of this Java app was inspired by JetBrains Academy idea, but the project was greatly extended by me. It servers as a simple Music Advisor integrated with Spotify. Its purpose is to show possibilities of connecting Java apps to servers, displaying downloaded information and using external API. This app was written entirely by me. **More features will be added soon!**
+Creation of this Java app was inspired by JetBrains Academy idea, but the project was extended by me. It servers as a simple Music Advisor integrated with Spotify. Its purpose is to show possibilities of connecting Java apps to servers, displaying downloaded information and using external API. This app was written entirely by me. **More features will be added soon!**
 
 # Features 🖥
 
